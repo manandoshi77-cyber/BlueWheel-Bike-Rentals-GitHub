@@ -1,0 +1,7 @@
+{
+    "python.testing.pytestArgs": [
+        "BlueWheel-Bike-Rentals"
+    ],
+    "python.testing.unittestEnabled": false,
+    "python.testing.pytestEnabled": true
+}

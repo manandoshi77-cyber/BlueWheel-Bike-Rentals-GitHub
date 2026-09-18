@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Book reliable city, mountain, electric, and tandem bicycles with BlueWheel Bike Rentals.">
+  <title>BlueWheel Bike Rentals</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%2308285c'/%3E%3Ccircle cx='18' cy='43' r='10' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Ccircle cx='47' cy='43' r='10' fill='none' stroke='%23fff' stroke-width='4'/%3E%3Cpath d='M18 43l10-20 9 20H18l8-14h14' fill='none' stroke='%23ed2438' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="BlueWheel home">
+      <span class="brand-mark" aria-hidden="true">BW</span>
+      <span>BLUE<span>WHEEL</span></span>
+    </a>
+    <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="main-nav">Menu</button>
+    <nav id="main-nav" aria-label="Main navigation">
+      <a href="#about">About</a>
+      <a href="#rentals">Bike Rentals</a>
+      <a href="#contact">Contact</a>
+      <a class="nav-cta" href="#book">Book a bike</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero" aria-labelledby="hero-title">
+      <img class="hero-image" src="hero-bike.png" alt="Blue city bicycle beside a waterfront cycling path at sunset">
+      <div class="hero-shade"></div>
+      <div class="hero-copy">
+        <p class="eyebrow">Ride your city. Your way.</p>
+        <h1 id="hero-title">A better day starts <em>on two wheels.</em></h1>
+        <p>Clean, maintained bikes. Flexible rental plans. Everything you need to get moving.</p>
+      </div>
+
+      <form class="booking-card" id="book">
+        <div class="booking-heading">
+          <span>01</span>
+          <div><p>Quick booking</p><h2>Find your ride</h2></div>
+        </div>
+        <label>Choose a bike
+          <select id="bike-select" required>
+            <option value="City Cruiser|199">City Cruiser — ₹199/day</option>
+            <option value="Trail MTB|349">Trail MTB — ₹349/day</option>
+            <option value="Electric Glide|699">Electric Glide — ₹699/day</option>
+            <option value="Tandem Duo|499">Tandem Duo — ₹499/day</option>
+          </select>
+        </label>
+        <div class="form-row">
+          <label>Start date<input id="start-date" type="date" required></label>
+          <label>Days<input id="days" type="number" min="1" max="30" value="1" required></label>
+        </div>
+        <div class="estimate"><span>Estimated rental</span><strong id="estimate">₹199</strong></div>
+        <button class="primary-button" type="submit">Check availability <span>→</span></button>
+        <p class="form-note">Helmet and lock included with every rental.</p>
+        <div class="success-message" id="booking-message" role="status" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <section class="trust-strip" aria-label="Rental benefits">
+      <span><b>✓</b> Safety-checked bikes</span>
+      <span><b>✓</b> Flexible returns</span>
+      <span><b>✓</b> Support seven days a week</span>
+    </section>
+
+    <section class="section rentals" id="rentals" aria-labelledby="rentals-title">
+      <div class="section-heading">
+        <div><p class="eyebrow red">Pick your pace</p><h2 id="rentals-title">Bikes for every kind of ride</h2></div>
+        <p>From short city errands to full-day adventures, choose a reliable bike that fits the plan.</p>
+      </div>
+      <div class="bike-grid">
+        <article class="bike-card featured">
+          <div class="bike-icon" aria-hidden="true">●—●</div><p class="tag">Everyday favourite</p>
+          <h3>City Cruiser</h3><p>Comfortable upright riding, easy gears, basket and lights.</p>
+          <div class="price"><strong>₹199</strong><span>/ day</span></div><button data-bike="City Cruiser">Choose this bike</button>
+        </article>
+        <article class="bike-card">
+          <div class="bike-icon" aria-hidden="true">●╱●</div><p class="tag">Adventure</p>
+          <h3>Trail MTB</h3><p>Front suspension, confident grip and 21 speeds for rougher routes.</p>
+          <div class="price"><strong>₹349</strong><span>/ day</span></div><button data-bike="Trail MTB">Choose this bike</button>
+        </article>
+        <article class="bike-card">
+          <div class="bike-icon" aria-hidden="true">●⚡●</div><p class="tag">Effortless</p>
+          <h3>Electric Glide</h3><p>Pedal assist, long-range battery and a smooth city-ready frame.</p>
+          <div class="price"><strong>₹699</strong><span>/ day</span></div><button data-bike="Electric Glide">Choose this bike</button>
+        </article>
+        <article class="bike-card">
+          <div class="bike-icon" aria-hidden="true">●═●</div><p class="tag">For two</p>
+          <h3>Tandem Duo</h3><p>A fun two-person setup, adjustable seats and easy handling.</p>
+          <div class="price"><strong>₹499</strong><span>/ day</span></div><button data-bike="Tandem Duo">Choose this bike</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="section about" id="about" aria-labelledby="about-title">
+      <div class="about-number" aria-hidden="true">02</div>
+      <div><p class="eyebrow red">About BlueWheel</p><h2 id="about-title">Good bikes. Straightforward rentals. Local people.</h2></div>
+      <div class="about-copy">
+        <p>BlueWheel makes cycling accessible for everyday commuters, weekend explorers and visitors who want to see more of the city. Every bicycle is cleaned and safety-checked before collection.</p>
+        <p>Our team helps you choose the right fit, shares practical route advice and keeps support close if your plans change.</p>
+        <div class="stats"><span><strong>500+</strong> happy riders</span><span><strong>4.9/5</strong> rider rating</span><span><strong>7 days</strong> customer support</span></div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact" aria-labelledby="contact-title">
+      <div><p class="eyebrow">Need a hand?</p><h2 id="contact-title">Let’s get you rolling.</h2><p>Questions about sizing, routes or group bookings? Our rental team is ready to help.</p></div>
+      <div class="contact-links">
+        <a href="mailto:hello@bluewheelrentals.com"><span>Email</span><strong>hello@bluewheelrentals.com</strong></a>
+        <a href="tel:+919876543210"><span>Call or WhatsApp</span><strong>+91 98765 43210</strong></a>
+        <p><span>Opening hours</span><strong>Daily · 7:00 AM–9:00 PM</strong></p>
+      </div>
+    </section>
+  </main>
+
+  <footer><a class="brand" href="#top"><span class="brand-mark">BW</span><span>BLUE<span>WHEEL</span></span></a><p>© 2026 BlueWheel Bike Rentals</p><a href="#top">Back to top ↑</a></footer>
+  <script src="script.js"></script>
+</body>
+</html>
