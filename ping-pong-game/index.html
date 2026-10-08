@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#111c20">
+  <title>Baseline | Ping Pong</title>
+  <style>
+    :root{color-scheme:dark;font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;background:#111c20;color:#f6f4ed}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh}button{font:inherit}
+    .shell{width:min(1100px,calc(100% - 32px));margin:auto;padding:24px 0 32px}
+    header,.topline,.toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px}
+    header{margin-bottom:28px}.brand{display:flex;align-items:center;gap:12px;font-size:20px;font-weight:800}
+    .brand-mark{display:grid;place-items:center;width:34px;height:34px;border:2px solid #d4f564;border-radius:6px;color:#d4f564}
+    .header-note,.subtitle,.help{color:#a8b9b8}.header-note{font-size:13px}
+    .topline{align-items:end;margin-bottom:16px}h1{font-size:clamp(28px,4vw,44px);line-height:1;margin:0 0 7px}
+    .subtitle{margin:0;font-size:14px}.mode-switch{display:flex;gap:3px;padding:4px;background:#1b2b30;border:1px solid #395052;border-radius:7px}
+    .mode-switch button{min-width:98px;padding:9px 12px;border:0;border-radius:4px;background:transparent;color:#bed0ce;cursor:pointer;font-size:13px;font-weight:700}
+    .mode-switch button[aria-pressed=true]{background:#d4f564;color:#15201d}
+    .game-frame{position:relative;overflow:hidden;width:100%;aspect-ratio:16/9;border:1px solid #486368;border-radius:8px;background:#14262b;box-shadow:0 18px 50px #0004;touch-action:none}
+    canvas{display:block;width:100%;height:100%}.overlay{position:absolute;inset:0;display:grid;place-items:center;padding:20px;background:#0e1b21ba;text-align:center}
+    .overlay[hidden]{display:none}.overlay-content{max-width:360px}.kicker{color:#d4f564;font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.12em}
+    h2{margin:7px 0 10px;font-size:clamp(27px,4.5vw,49px);line-height:1.06}.overlay p{margin:0 0 20px;color:#c5d2cf;font-size:14px;line-height:1.5}
+    .primary{padding:11px 22px;border:0;border-radius:5px;background:#d4f564;color:#18221c;cursor:pointer;font-weight:800}
+    .primary:hover,.mode-switch button[aria-pressed=true]:hover{background:#e2ff87}
+    .toolbar{padding:17px 0;border-bottom:1px solid #345054}.scoreline{display:flex;align-items:center;gap:16px;color:#a9bdbb;font-size:13px}
+    .scoreline strong{color:#f6f4ed;font-size:23px;font-variant-numeric:tabular-nums}.actions{display:flex;gap:8px}
+    .icon-button{display:grid;place-items:center;width:38px;height:38px;border:1px solid #456166;border-radius:5px;background:#213339;color:#e5efea;cursor:pointer}
+    .icon-button:hover{background:#304950}.icon-button svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .help{display:flex;flex-wrap:wrap;gap:8px 22px;padding-top:16px;font-size:13px}.help b{color:#e8efeb}
+    kbd{display:inline-block;min-width:22px;margin:0 2px;padding:2px 5px;border:1px solid #4c6567;border-radius:4px;background:#26383e;color:#e3edeb;text-align:center;font-size:11px;font-weight:700}
+    @media(max-width:650px){.shell{width:calc(100% - 20px);padding-top:16px}.header-note{display:none}.topline{align-items:stretch;flex-direction:column}.mode-switch button{flex:1}.game-frame{aspect-ratio:4/3}.scoreline{gap:8px}.scoreline strong{font-size:19px}}
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header><div class="brand"><span class="brand-mark" aria-hidden="true">↗</span>Baseline</div><span class="header-note">A little arcade break</span></header>
+    <div class="topline">
+      <div><h1>Ping pong</h1><p class="subtitle">First to 7 wins. Keep the rally alive.</p></div>
+      <div class="mode-switch" role="group" aria-label="Game mode">
+        <button id="solo" type="button" aria-pressed="true">Solo</button>
+        <button id="duo" type="button" aria-pressed="false">2 players</button>
+      </div>
+    </div>
+    <div class="game-frame" id="frame">
+      <canvas id="game" aria-label="Ping pong playfield"></canvas>
+      <div class="overlay" id="overlay">
+        <div class="overlay-content">
+          <div class="kicker" id="kicker">Ready to play</div>
+          <h2 id="title">Let's rally.</h2>
+          <p id="detail">Move your paddle with W and S, or drag on the court.</p>
+          <button class="primary" id="action" type="button">Start game</button>
+        </div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="scoreline" aria-live="polite"><span>YOU <strong id="score0">0</strong></span><span>/</span><span id="opponent">CPU</span><strong id="score1">0</strong></div>
+      <div class="actions">
+        <button class="icon-button" id="pause" type="button" title="Pause game" aria-label="Pause game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg></button>
+        <button class="icon-button" id="reset" type="button" title="New game" aria-label="New game"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11a9 9 0 1 1 2.6 7.4M3 4v7h7"/></svg></button>
+      </div>
+    </div>
+    <div class="help"><span><b>Player 1</b> <kbd>W</kbd><kbd>S</kbd> or drag</span><span id="help2"><b>Solo</b> Face the CPU</span><span><b>Pause</b> <kbd>Space</kbd></span></div>
+  </main>
+  <script>
+    (() => {
+      const W=960,H=540,PW=14,PH=94,R=9,edge=35;
+      const byId=id=>document.getElementById(id);
+      const canvas=byId('game'),ctx=canvas.getContext('2d'),frame=byId('frame');
+      const overlay=byId('overlay'),pauseButton=byId('pause');
+      const paddles=[{x:edge,y:(H-PH)/2},{x:W-edge-PW,y:(H-PH)/2}];
+      const ball={x:W/2,y:H/2,vx:0,vy:0},scores=[0,0],keys=new Set();
+      let mode='solo',phase='ready',serveDirection=1,lastTime=0,pointer=false;
+      const clamp=(n,a,b)=>Math.max(a,Math.min(b,n));
+      function resize(){
+        const dpr=Math.min(devicePixelRatio||1,2);
+        canvas.width=Math.round(canvas.clientWidth*dpr);
+        canvas.height=Math.round(canvas.clientHeight*dpr);
+        ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);
+        draw();
+      }
+      function message(kicker,title,detail,action){
+        byId('kicker').textContent=kicker;byId('title').textContent=title;
+        byId('detail').textContent=detail;byId('action').textContent=action;
+        overlay.hidden=false;
+      }
+      function pauseIcon(){
+        const playing=phase==='playing';
+        pauseButton.title=playing?'Pause game':'Resume game';
+        pauseButton.setAttribute('aria-label',pauseButton.title);
+        pauseButton.innerHTML=playing
+          ?'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5v14M15 5v14"/></svg>'
+          :'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 11 7-11 7z"/></svg>';
+      }
+      function centerBall(){ball.x=W/2;ball.y=H/2;ball.vx=ball.vy=0}
+      function serve(){
+        centerBall();
+        const angle=Math.random()*.8-.4;
+        ball.vx=serveDirection*350*Math.cos(angle);
+        ball.vy=350*Math.sin(angle);
+        resume();
+      }
+      function resume(){phase='playing';overlay.hidden=true;pauseIcon()}
+      function newGame(){
+        scores[0]=scores[1]=0;
+        byId('score0').textContent=byId('score1').textContent='0';
+        paddles.forEach(p=>p.y=(H-PH)/2);
+        serveDirection=Math.random()<.5?-1:1;
+        centerBall();phase='ready';
+        message('Ready to play',"Let's rally.",mode==='solo'?'Move your paddle with W and S, or drag on the court.':'Player 1 uses W and S. Player 2 uses the arrow keys.','Start game');
+        pauseIcon();draw();
+      }
+      function setMode(next){
+        mode=next;
+        byId('solo').setAttribute('aria-pressed',String(mode==='solo'));
+        byId('duo').setAttribute('aria-pressed',String(mode==='duo'));
+        byId('opponent').textContent=mode==='solo'?'CPU':'P2';
+        byId('help2').innerHTML=mode==='solo'?'<b>Solo</b> Face the CPU':'<b>Player 2</b> <kbd>↑</kbd><kbd>↓</kbd>';
+        newGame();
+      }
+      function point(side){
+        scores[side]++;
+        byId('score'+side).textContent=scores[side];
+        centerBall();
+        phase=scores[side]>=7?'finished':'ready';
+        if(phase==='finished'){
+          message('Match point',side===0?'You win!':mode==='solo'?'CPU wins!':'Player 2 wins!','A fresh match is one click away.','Play again');
+        }else{
+          serveDirection=side===0?-1:1;
+          message('Point scored',side===0?'Nice shot.':'Next point.','The next serve is ready.','Continue');
+        }
+        pauseIcon();
+      }
+      function bounce(p,direction){
+        const offset=clamp((ball.y-(p.y+PH/2))/(PH/2),-1,1);
+        const speed=Math.min(Math.hypot(ball.vx,ball.vy)+30,800);
+        ball.vx=direction*speed*Math.cos(offset*.85);
+        ball.vy=speed*Math.sin(offset*.85);
+        ball.x=direction>0?p.x+PW+R:p.x-R;
+      }
+      function update(dt){
+        const move=540*dt;
+        if(keys.has('w'))paddles[0].y-=move;
+        if(keys.has('s'))paddles[0].y+=move;
+        if(mode==='duo'){
+          if(keys.has('arrowup'))paddles[1].y-=move;
+          if(keys.has('arrowdown'))paddles[1].y+=move;
+        }else{
+          const target=ball.vx>0?ball.y-PH/2:(H-PH)/2;
+          paddles[1].y+=clamp(target-paddles[1].y,-360*dt,360*dt);
+        }
+        paddles.forEach(p=>p.y=clamp(p.y,12,H-PH-12));
+        ball.x+=ball.vx*dt;ball.y+=ball.vy*dt;
+        if(ball.y-R<13){ball.y=13+R;ball.vy=Math.abs(ball.vy)}
+        if(ball.y+R>H-13){ball.y=H-13-R;ball.vy=-Math.abs(ball.vy)}
+        const left=paddles[0],right=paddles[1];
+        if(ball.vx<0&&ball.x-R<=left.x+PW&&ball.x>left.x&&ball.y+R>=left.y&&ball.y-R<=left.y+PH)bounce(left,1);
+        if(ball.vx>0&&ball.x+R>=right.x&&ball.x<right.x+PW&&ball.y+R>=right.y&&ball.y-R<=right.y+PH)bounce(right,-1);
+        if(ball.x<-R)point(1);
+        if(ball.x>W+R)point(0);
+      }
+      function draw(){
+        ctx.fillStyle='#14262b';ctx.fillRect(0,0,W,H);
+        ctx.strokeStyle='#29474b';ctx.lineWidth=2;
+        ctx.strokeRect(12,12,W-24,H-24);
+        ctx.setLineDash([9,16]);ctx.beginPath();ctx.moveTo(W/2,13);ctx.lineTo(W/2,H-13);ctx.stroke();ctx.setLineDash([]);
+        ctx.beginPath();ctx.arc(W/2,H/2,72,0,Math.PI*2);ctx.stroke();
+        ctx.fillStyle='#d4f564';ctx.fillRect(paddles[0].x,paddles[0].y,PW,PH);
+        ctx.fillStyle='#fc816c';ctx.fillRect(paddles[1].x,paddles[1].y,PW,PH);
+        ctx.fillStyle='#f6f4ed';ctx.beginPath();ctx.arc(ball.x,ball.y,R,0,Math.PI*2);ctx.fill();
+      }
+      function tick(time){
+        const dt=Math.min((time-lastTime)/1000||0,.025);
+        lastTime=time;if(phase==='playing')update(dt);
+        draw();requestAnimationFrame(tick);
+      }
+      function movePointer(e){
+        const rect=frame.getBoundingClientRect();
+        const x=(e.clientX-rect.left)/rect.width*W;
+        const y=(e.clientY-rect.top)/rect.height*H;
+        const index=mode==='duo'&&x>W/2?1:0;
+        paddles[index].y=clamp(y-PH/2,12,H-PH-12);
+      }
+      function toggle(){
+        if(phase==='playing'){phase='paused';message('Paused','Take a breath.','Your match is ready when you are.','Resume');pauseIcon()}
+        else if(phase==='paused')resume();
+        else if(phase==='ready')serve();
+        else{newGame();serve()}
+      }
+      byId('action').addEventListener('click',()=>{
+        if(phase==='finished'){newGame();serve()}
+        else if(phase==='paused')resume();
+        else serve();
+      });
+      pauseButton.addEventListener('click',toggle);
+      byId('reset').addEventListener('click',newGame);
+      byId('solo').addEventListener('click',()=>setMode('solo'));
+      byId('duo').addEventListener('click',()=>setMode('duo'));
+      window.addEventListener('keydown',e=>{
+        const key=e.key.toLowerCase();
+        if([' ','arrowup','arrowdown'].includes(key))e.preventDefault();
+        keys.add(key);
+        if(key===' '&&!e.repeat)toggle();
+      });
+      window.addEventListener('keyup',e=>keys.delete(e.key.toLowerCase()));
+      window.addEventListener('blur',()=>{
+        keys.clear();
+        if(phase==='playing'){phase='paused';message('Paused','Take a breath.','Your match is ready when you are.','Resume');pauseIcon()}
+      });
+      frame.addEventListener('pointerdown',e=>{pointer=true;frame.setPointerCapture(e.pointerId);movePointer(e)});
+      frame.addEventListener('pointermove',e=>{if(pointer)movePointer(e)});
+      frame.addEventListener('pointerup',()=>pointer=false);
+      frame.addEventListener('pointercancel',()=>pointer=false);
+      window.addEventListener('resize',resize);
+      newGame();resize();requestAnimationFrame(tick);
+    })();
+  </script>
+</body>
+</html>
